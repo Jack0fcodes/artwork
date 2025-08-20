@@ -1,13 +1,13 @@
 [
   {
-    "file": "art1.png",
-    "title": "Golden Portrait",
+    "file": "IMG_4520.jpeg",
+    "title": "First Priority",
     "status": "Available",
     "paypal": "https://www.paypal.com/ncp/payment/YOUR_LINK_HERE"
   },
   {
-    "file": "art2.jpg",
-    "title": "Blue Dreams",
+    "file": "IMG_3691.jpeg",
+    "title": "Second Priority",
     "status": "Sold",
     "paypal": ""
   }
