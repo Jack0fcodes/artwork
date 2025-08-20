@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portrait Gallery</title>
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      margin: 0;
+      background: #ffffff;
+      color: #222;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 40px 0 20px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      padding: 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .artwork {
+      background: #fafafa;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .artwork:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .artwork img {
+      width: 100%;
+      display: block;
+      border-bottom: 1px solid #eaeaea;
+    }
+
+    .info {
+      padding: 15px;
+      text-align: center;
+    }
+
+    .label {
+      font-weight: 500;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .price {
+      margin: 5px 0 15px;
+      font-size: 1.1rem;
+      color: #444;
+    }
+
+    .paypal-btn {
+      display: inline-block;
+      background: #0070ba;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      font-family: Arial, sans-serif;
+      transition: background 0.2s ease, transform 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .paypal-btn:hover {
+      background: #005c99;
+      transform: translateY(-2px);
+    }
+
+    .paypal-btn:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <h1>My Portrait Gallery 🎨</h1>
+
+  <div class="gallery" id="gallery"></div>
+
+  <script>
+    const username = "jack0fcodes";
+    const repo = "artwork";
+    const folder = "images";
+
+    async function loadImages() {
+      const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${folder}`);
+      const files = await res.json();
+
+      const gallery = document.getElementById("gallery");
+
+      files.forEach(file => {
+        if (file.type === "file" && /\.(png|jpg|jpeg|gif)$/i.test(file.name)) {
+          // Create artwork card
+          const card = document.createElement("div");
+          card.className = "artwork";
+
+          card.innerHTML = `
+            <img src="${file.download_url}" alt="${file.name}">
+            <div class="info">
+              <div class="label">Available</div>
+              <div class="price">$100</div>
+              <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                <input type="hidden" name="cmd" value="_s-xclick">
+                <input type="hidden" name="hosted_button_id" value="YOUR_BUTTON_ID_HERE">
+                <button type="submit" class="paypal-btn">PayPal</button>
+              </form>
+            </div>
+          `;
+
+          gallery.appendChild(card);
+        }
+      });
+    }
+
+    loadImages();
+  </script>
+</body>
+</html>
