@@ -1,14 +1,14 @@
 [
   {
     "file": "IMG_3692.jpeg",
-    "title": "First Priority",
+    "title": "Portrait of mgski",
     "price": "$200",
     "status": "available",
     "paypal_id": "YOUR_PAYPAL_BUTTON_ID"
   },
   {
     "file": "IMG_3691.jpeg",
-    "title": "Second Priority",
+    "title": "Portrait of Lady",
     "price": "$150",
     "status": "sold",
     "paypal_id": ""
