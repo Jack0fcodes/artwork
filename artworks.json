@@ -1,0 +1,16 @@
+[
+  {
+    "file": "art1.jpg",
+    "title": "Golden Portrait",
+    "price": "$120",
+    "status": "available",
+    "paypal_id": "YOUR_BUTTON_ID_1"
+  },
+  {
+    "file": "art2.jpg",
+    "title": "Dream in Blue",
+    "price": "$150",
+    "status": "sold",
+    "paypal_id": ""
+  }
+]
