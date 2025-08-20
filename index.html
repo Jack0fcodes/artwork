@@ -68,31 +68,37 @@
   <div class="gallery" id="gallery"></div>
 
   <script>
-    const username = "jack0fcodes";
-    const repo = "artwork";
-    const imagesFolder = "images";
+    const username = "jack0fcodes";  // <-- your GitHub username
+    const repo = "artwork";          // <-- your repo name
+    const imagesFolder = "images";   // <-- folder where images live
     const gallery = document.getElementById("gallery");
 
     async function fetchArtworks() {
       // Fetch image list from GitHub API
       const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${imagesFolder}`);
-      const files = await res.json();
+      let files = await res.json();
 
-      // Fetch extra details from artworks.json
+      // Only image files
+      files = files.filter(f => f.type === "file" && /\.(jpg|jpeg|png|gif)$/i.test(f.name));
+
+      // Create quick lookup by filename
+      const fileMap = {};
+      files.forEach(f => fileMap[f.name] = f);
+
+      // Fetch artwork details (with filenames for ordering)
       const detailsRes = await fetch(`https://${username}.github.io/${repo}/artworks.json`);
       const details = await detailsRes.json();
-      const detailsMap = {};
-      details.forEach(d => detailsMap[d.file] = d);
 
-      // Loop through images
-      files.forEach(file => {
-        if (file.type === "file" && /\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
-          const detail = detailsMap[file.name] || {};
-          const title = detail.title || "Untitled";
+      // Go through JSON in order
+      details.forEach(detail => {
+        const filename = detail.file;
+        const file = fileMap[filename];
+
+        if (file) {
+          const title = detail.title || file.name;
           const status = detail.status || "Available";
           const paypal = detail.paypal || "";
 
-          // Card
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
@@ -100,6 +106,20 @@
             <div class="title">${title}</div>
             <div class="status ${status.toLowerCase()}">${status}</div>
             ${status === "Available" && paypal ? `<a class="paypal-btn" href="${paypal}" target="_blank">PayPal</a>` : ""}
+          `;
+          gallery.appendChild(card);
+        }
+      });
+
+      // If there are leftover images not in JSON, show them at the end with defaults
+      files.forEach(file => {
+        if (!details.some(d => d.file === file.name)) {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <img src="${file.download_url}" alt="${file.name}">
+            <div class="title">${file.name}</div>
+            <div class="status available">Available</div>
           `;
           gallery.appendChild(card);
         }
