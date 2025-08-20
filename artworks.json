@@ -1,10 +1,16 @@
-{
-  "IMG_3691.jpeg": {
+[
+  {
+    "file": "art2.jpg",
+    "title": "Dream in Blue",
+    "price": "$150",
     "status": "Available",
     "paypal": "https://www.paypal.com/ncp/payment/YOUR-LINK-HERE"
   },
-  "art2.png": {
+  {
+    "file": "art3.png",
+    "title": "Golden Light",
+    "price": "$200",
     "status": "Sold",
     "paypal": ""
   }
-}
+]
