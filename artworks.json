@@ -1,16 +1,10 @@
-[
-  {
-    "file": "images/IMG_3692.jpeg",
-    "title": "Golden Portrait",
-    "price": "$120",
-    "status": "available",
-    "paypal_id": "YOUR_BUTTON_ID_1"
+{
+  "art1.jpg": {
+    "status": "Available",
+    "paypal": "https://www.paypal.com/ncp/payment/YOUR-LINK-HERE"
   },
-  {
-    "file": "art2.jpg",
-    "title": "Dream in Blue",
-    "price": "$150",
-    "status": "sold",
-    "paypal_id": ""
+  "art2.png": {
+    "status": "Sold",
+    "paypal": ""
   }
-]
+}
