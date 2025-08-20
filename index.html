@@ -1,153 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portrait Gallery</title>
-  <style>
-    body {
-      font-family: 'Inter', Arial, sans-serif;
-      margin: 0;
-      background: #ffffff;
-      color: #222;
-    }
+<script>
+  const username = "jack0fcodes";
+  const repo = "artwork";
+  const imagesFolder = "images";
+  const gallery = document.getElementById("gallery");
 
-    h1 {
-      text-align: center;
-      padding: 40px 0 20px;
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #111;
-    }
+  async function fetchArtworks() {
+    // Fetch image list from GitHub API
+    const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${imagesFolder}`);
+    const files = await res.json();
 
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
-      padding: 40px;
-      max-width: 1200px;
-      margin: auto;
-    }
+    // Fetch statuses from artworks.json
+    const detailsRes = await fetch(`https://${username}.github.io/${repo}/artworks.json`);
+    const details = await detailsRes.json();
 
-    .artwork {
-      background: #fafafa;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
+    files.forEach(file => {
+      if (file.type === "file" && /\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
+        // Get status from JSON (default to Available)
+        const meta = details[file.name] || {};
+        const status = meta.status || "Available";
+        const paypal = meta.paypal || "";
 
-    .artwork:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
+        // Use filename (without extension) as title
+        const title = file.name.replace(/\.[^/.]+$/, "");
 
-    .artwork img {
-      width: 100%;
-      display: block;
-      border-bottom: 1px solid #eaeaea;
-    }
-
-    .info {
-      padding: 15px;
-      text-align: center;
-    }
-
-    .title {
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 1.2rem;
-      color: #333;
-    }
-
-    .price {
-      margin: 5px 0 15px;
-      font-size: 1.1rem;
-      color: #444;
-    }
-
-    .status {
-      margin-bottom: 12px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: #666;
-    }
-
-    .paypal-btn {
-      display: inline-block;
-      background: #0070ba;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 30px;
-      font-size: 1rem;
-      font-weight: 600;
-      text-decoration: none;
-      font-family: Arial, sans-serif;
-      transition: background 0.2s ease, transform 0.2s ease;
-      border: none;
-      cursor: pointer;
-    }
-
-    .paypal-btn:hover {
-      background: #005c99;
-      transform: translateY(-2px);
-    }
-
-    .paypal-btn:active {
-      transform: translateY(0);
-    }
-
-    .sold {
-      color: #999;
-      font-style: italic;
-    }
-  </style>
-</head>
-<body>
-  <h1>Studio Sale</h1>
-
-  <div class="gallery" id="gallery"></div>
-
-  <script>
-    const username = "jack0fcodes";
-    const repo = "artwork";
-
-    async function loadArtworks() {
-      // fetch artworks.json
-      const res = await fetch(`https://raw.githubusercontent.com/${username}/${repo}/main/artworks.json`);
-      const artworks = await res.json();
-
-      const gallery = document.getElementById("gallery");
-
-      artworks.forEach(art => {
+        // Build card
         const card = document.createElement("div");
-        card.className = "artwork";
-
-        const imgUrl = `https://raw.githubusercontent.com/${username}/${repo}/main/images/${art.file}`;
-
+        card.className = "card";
         card.innerHTML = `
-          <img src="${imgUrl}" alt="${art.title}">
-          <div class="info">
-            <div class="title">${art.title}</div>
-            <div class="price">${art.price}</div>
-            <div class="status">${art.status === "sold" ? "<span class='sold'>Sold</span>" : "Available"}</div>
-            ${
-              art.status === "available" && art.paypal_id
-              ? `<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-                  <input type="hidden" name="cmd" value="_s-xclick">
-                  <input type="hidden" name="hosted_button_id" value="${art.paypal_id}">
-                  <button type="submit" class="paypal-btn">PayPal</button>
-                 </form>`
-              : ""
-            }
-          </div>
+          <img src="${file.download_url}" alt="${title}">
+          <div class="title">${title}</div>
+          <div class="status ${status.toLowerCase()}">${status}</div>
+          ${status === "Available" && paypal ? `<a class="paypal-btn" href="${paypal}" target="_blank">PayPal</a>` : ""}
         `;
-
         gallery.appendChild(card);
-      });
-    }
+      }
+    });
+  }
 
-    loadArtworks();
-  </script>
-</body>
-</html>
+  fetchArtworks();
+</script>
