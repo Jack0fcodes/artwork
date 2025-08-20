@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Portrait Gallery</title>
+  <title>Studio Sale</title>
   <style>
     body {
       font-family: 'Inter', Arial, sans-serif;
@@ -109,41 +109,72 @@
   <div class="gallery" id="gallery"></div>
 
   <script>
-    const username = "jack0fcodes";
-    const repo = "artwork";
+    const username = "jack0fcodes";  // <-- your GitHub username
+    const repo = "artwork";          // <-- your repo name
+    const imagesFolder = "images";   // <-- folder where images live
 
     async function loadArtworks() {
-      // fetch artworks.json
-      const res = await fetch(`https://raw.githubusercontent.com/${username}/${repo}/main/artworks.json`);
-      const artworks = await res.json();
-
       const gallery = document.getElementById("gallery");
 
-      artworks.forEach(art => {
-        const card = document.createElement("div");
-        card.className = "artwork";
+      // Fetch images from repo
+      const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${imagesFolder}`);
+      let files = await res.json();
+      files = files.filter(f => f.type === "file" && /\.(jpg|jpeg|png|gif)$/i.test(f.name));
 
-        const imgUrl = `https://raw.githubusercontent.com/${username}/${repo}/main/images/${art.file}`;
+      // Build lookup by filename
+      const fileMap = {};
+      files.forEach(f => fileMap[f.name] = f);
 
-        card.innerHTML = `
-          <img src="${imgUrl}" alt="${art.title}">
-          <div class="info">
-            <div class="title">${art.title}</div>
-            <div class="price">${art.price}</div>
-            <div class="status">${art.status === "sold" ? "<span class='sold'>Sold</span>" : "Available"}</div>
-            ${
-              art.status === "available" && art.paypal_id
-              ? `<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-                  <input type="hidden" name="cmd" value="_s-xclick">
-                  <input type="hidden" name="hosted_button_id" value="${art.paypal_id}">
-                  <button type="submit" class="paypal-btn">PayPal</button>
-                 </form>`
-              : ""
-            }
-          </div>
-        `;
+      // Fetch metadata (with ordering)
+      const detailsRes = await fetch(`https://raw.githubusercontent.com/${username}/${repo}/main/artworks.json`);
+      const details = await detailsRes.json();
 
-        gallery.appendChild(card);
+      // Render in JSON order
+      details.forEach(detail => {
+        const filename = detail.file;
+        const file = fileMap[filename];
+        if (file) {
+          const title = detail.title || file.name;
+          const price = detail.price || "";
+          const status = detail.status ? detail.status.toLowerCase() : "available";
+
+          const card = document.createElement("div");
+          card.className = "artwork";
+          card.innerHTML = `
+            <img src="${file.download_url}" alt="${title}">
+            <div class="info">
+              <div class="title">${title}</div>
+              ${price ? `<div class="price">${price}</div>` : ""}
+              <div class="status">${status === "sold" ? "<span class='sold'>Sold</span>" : "Available"}</div>
+              ${
+                status === "available" && detail.paypal_id
+                ? `<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                    <input type="hidden" name="cmd" value="_s-xclick">
+                    <input type="hidden" name="hosted_button_id" value="${detail.paypal_id}">
+                    <button type="submit" class="paypal-btn">PayPal</button>
+                   </form>`
+                : ""
+              }
+            </div>
+          `;
+          gallery.appendChild(card);
+        }
+      });
+
+      // Render leftover images not listed in JSON
+      files.forEach(file => {
+        if (!details.some(d => d.file === file.name)) {
+          const card = document.createElement("div");
+          card.className = "artwork";
+          card.innerHTML = `
+            <img src="${file.download_url}" alt="${file.name}">
+            <div class="info">
+              <div class="title">${file.name}</div>
+              <div class="status">Available</div>
+            </div>
+          `;
+          gallery.appendChild(card);
+        }
       });
     }
 
